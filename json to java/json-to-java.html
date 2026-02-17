@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title>Json to Java</title>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.js" integrity="sha256-M+GjhMBfXikM1izMplICCTscIj5hzPCp6uDzaypxtgg=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Json to Java</h1>
+    </header>
+    <main>
+      <div class="container">
+        <div>
+          <h2>Json Area</h2>
+          <textarea class="area" id="json"></textarea>
+        </div>
+        <div>
+          <h2>Java Area</h2>
+          <textarea class="area" id="java"></textarea>
+        </div>
+        <div>
+          <h2>Example Area</h2>
+          <textarea class="area" id="exemplo">
+            {
+              "data": [
+                {
+                  "MainId": 1111,
+                  "firstName": "Sherlock",
+                  "lastName": "Homes",
+                  "categories": [
+                    {
+                      "CategoryID": 1,
+                      "CategoryName": "Primeira Categoria"
+                    },
+                    {
+                      "CategoryID": 2,
+                      "CategoryName": "Segunda Categoria",
+                      "CategorySurpriseMotherFucker": "Category Surprise MotherFucker"
+                    }
+                  ]
+                },
+                {
+                  "MainId": 122,
+                  "firstName": "James",
+                  "lastName": "Watson",
+                  "categories": [
+                    {
+                      "CategoryID": 2,
+                      "CategoryName": "Example2"
+                    }
+                  ]
+                }
+              ],
+              "messages": [],
+              "success": true
+            }
+          </textarea>
+        </div>
+      </div>
+      <p class="message"></p>
+      <button id="convertButton">Converter</button>
+    </main>
+    <footer></footer>
+    <script>
+
+      // Resetar Valores ao Abrir a página.
+      $(document).ready(function(){
+        $("#json").val("");
+        $("#java").val("");
+      });
+
+      // Regex para encontrar vírgulas.
+      const commaReGlobalPattern = /,/g;
+
+      // Contar número de ocorrências do regex.
+      const countNumberOccurences = function(string, pattern){
+        return ( (string || "").match(pattern) || []).length
+      }
+
+      // Retornar array com as ocorrências do regex.
+      const jsonOcurrences = function(string, pattern){
+        return JSON.stringify(string.match(pattern));
+      }
+
+      // Verificar se o Json é válido.
+      const validarJson = function(){
+        var jsonContent = $("#json").val();
+        try{
+          var jsonObject = JSON.parse(jsonContent);
+          $(".message").text("Json válido!")
+          $(".message").css("color", "green");
+          return true;
+        }catch(e){
+          $(".message").text("Json inválido!");
+          $(".message").css("color", "red");
+          return false;
+        }
+      }
+
+      // Chamar verificação de Json para cada mudança no textArea.
+      $("#json").on("input paste", function(){
+        validarJson();
+      });
+
+      // Função auxiliar para não perder atributos caso eles apareçam no segundo item do array
+      // dentro do json.
+      const unirAtributos = function(arrayObject){
+        // percorrer array
+        for(var itemArray of arrayObject){
+          // percorrer os objetos json
+          for(var keyJsonObject in itemArray){
+            // Se o primeiro item do array não tiver a chave desse objeto, adiciona.
+            if(arrayObject[0].hasOwnProperty(keyJsonObject) === false){
+              arrayObject[0][keyJsonObject] = itemArray[keyJsonObject];
+            }
+          }
+        }
+        // Retorna apenas o primeiro item, pois agora ele tem todos os atributos.
+        return arrayObject[0];
+      }
+
+      $("#convertButton").on("click", function(){
+        var jsonContent = $("#json").val();
+        var valido = validarJson();
+        if(valido === true){
+          // Aqui eu já faço o Parse do json, usando o reviver. Não quero array.
+          // Se for array, eu quero apenas o primeiro objeto do array. (Simplificar)
+          // Existe um problema aqui. Se o primeiro json tiver menos parâmetros que o segundo
+          // Esses parâmetros teoricamente serão perdidos.
+          // pra resolver isso coloquei o unirAtributos.
+          var jsonSemArray = JSON.parse(jsonContent,
+            function (key, value){
+              return Array.isArray(value) === true ? unirAtributos(value) : value;
+            }
+          )
+
+          $("#java").val(JSON.stringify(jsonSemArray));
+          // Agora eu vou simplificar mais ainda. Eu quero colocar dentro do Value o texto
+          // Transformando agora para java.
+
+
+        }
+      });
+
+    </script>
+  </body>
+</html>
+
+<style>
+  .container{
+    display:flex;
+  }
+  .area{
+    width:275px;
+    height:500px;
+  }
+</style>
