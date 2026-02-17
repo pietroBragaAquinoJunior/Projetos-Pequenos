@@ -120,6 +120,55 @@
         return arrayObject[0];
       }
 
+      // Deixar primeira letra da string maiúscula.
+      function capitalizeFirstLetter(val) {
+        return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+      }
+
+      // Função auxiliar para conversão de json para pojo java.
+      const oneJsonToJava = function(nomeJson){
+      //   var json = JSON.parse(`
+      // {
+      //   "users": [ "teste" ],
+      //   "total": 3
+      // }
+      //   `)
+        var dtoJava = `public class ${nomeJson != null ? nomeJson : "UNDEFINED"} {`
+        for(key in json){
+          switch(typeof json[key]){
+            case "object":
+              if(Array.isArray(json[key])){
+                dtoJava += `private ArrayList<${capitalizeFirstLetter(json[key])}> ${json[key]};`
+              }else{
+                dtoJava += `private Object ${json[key]};`
+              }
+              break;
+            case "number":
+              dtoJava += `private int ${json[key]};`
+              break;
+            case "boolean":
+              dtoJava += `private boolean ${json[key]};`
+              break;
+            case "string":
+              dtoJava += `private String ${json[key]};`
+              break;
+            default:
+              dtoJava += `private UNDEFINED ${json[key]};`
+          }
+        }
+        return dtoJava.concat("}")
+      }
+
+      const forInNestedJson = function(json){
+        for(var key in json){
+          if(typeof json[key] === "object" && !Array.isArray(json[key])){
+            forInNestedJson(json[key]);
+          }else{
+            console.log(json[key])
+          }
+        }
+      }
+
       $("#convertButton").on("click", function(){
         var jsonContent = $("#json").val();
         var valido = validarJson();
@@ -129,15 +178,20 @@
           // Existe um problema aqui. Se o primeiro json tiver menos parâmetros que o segundo
           // Esses parâmetros teoricamente serão perdidos.
           // pra resolver isso coloquei o unirAtributos.
-          var jsonSemArray = JSON.parse(jsonContent,
+          var jsonComArraySingular = JSON.parse(jsonContent,
             function (key, value){
-              return Array.isArray(value) === true ? unirAtributos(value) : value;
+              return Array.isArray(value) === true ? [unirAtributos(value)] : value;
             }
           )
 
-          $("#java").val(JSON.stringify(jsonSemArray));
-          // Agora eu vou simplificar mais ainda. Eu quero colocar dentro do Value o texto
-          // Transformando agora para java.
+          // $("#java").val(JSON.stringify(jsonComArraySingular));
+          // $("#java").val(oneJsonToJava("Root"));
+          forInNestedJson(jsonComArraySingular);
+
+
+          // Agora o desafio é fazer função em profundidade, onde o último item
+          // deve retornar uma string da representação dele em java
+          // o penúltimo deve passar o nome do objeto filho, e receber a string e anexar ao corpo. (caso exista)
 
 
         }
