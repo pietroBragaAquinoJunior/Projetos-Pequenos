@@ -1,0 +1,12 @@
+#!/bin/bash
+
+function multiple_values() {
+  local array=("Ubuntu" "Linux" "Red-hat")
+  echo "${array[@]}"
+}
+
+result=($(multiple_values))
+
+echo "First value: ${result[0]}"
+echo "Second value: ${result[1]}"
+echo "Third value: ${result[2]}"

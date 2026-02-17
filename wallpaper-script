@@ -1,0 +1,66 @@
+#!/bin/bash
+
+trocar_wallpaper_plasma(){
+
+    file="file://$1"
+
+    dbus-send --session --dest=org.kde.plasmashell --type=method_call \
+    /PlasmaShell org.kde.PlasmaShell.evaluateScript 'string:
+    var Desktops = desktops();
+    for (i=0;i<Desktops.length;i++) {
+            d = Desktops[i];
+            d.wallpaperPlugin = "org.kde.image";
+            d.currentConfigGroup = Array("Wallpaper", "org.kde.image", "General");
+            d.writeConfig("Image", "'"$file"'");
+    }'
+
+}
+
+
+function wallpaper_estatico_plasma_main(){
+    FILES="$HOME/wallpapers/*"
+    while true; do
+        for f in $FILES
+        do
+            trocar_wallpaper_plasma $f
+            sleep 1m
+        done
+    done
+}
+
+function descobrirDesktopExecutarEstatico(){
+    case $DESKTOP_SESSION in
+        "plasma")
+        echo "Iniciando Rotação para Plasma Desktop"
+        wallpaper_estatico_plasma_main
+        ;;
+        *)
+        echo "Não sei qual desktop é este"
+        ;;
+    esac
+}
+
+
+echo "---------------------------------"
+echo "      M A I N - M E N U"
+echo "---------------------------------"
+echo "1) Rotate Wallpapers with local folder. ($HOME/wallpapers)"
+echo "---------------------------------"
+read -r -p "Enter your choice : " c
+case $c in
+    1)
+    descobrirDesktopExecutarEstatico
+    ;;
+    *)
+    echo "Não é uma opção."
+    ;;
+esac
+
+
+
+
+
+
+
+
+

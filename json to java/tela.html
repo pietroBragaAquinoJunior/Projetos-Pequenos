@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title>Json to Java</title>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.js" integrity="sha256-M+GjhMBfXikM1izMplICCTscIj5hzPCp6uDzaypxtgg=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Json to Java</h1>
+    </header>
+    <main>
+      <div class="container">
+        <div>
+          <h2>Json Area</h2>
+          <textarea class="area" id="json"></textarea>
+        </div>
+        <div>
+          <h2>Java Area</h2>
+          <textarea class="area" id="java"></textarea>
+        </div>
+        <div>
+          <h2>Example Area</h2>
+          <textarea class="area" id="exemplo">
+          {
+            "data":[
+                {
+                  "MainId":1111,
+                  "firstName":"Sherlock",
+                  "lastName":"Homes",
+                  "categories":[
+                      {
+                        "CategoryID":1,
+                        "CategoryName":"Primeira Categoria"
+                      },
+                      {
+                        "CategoryID":2,
+                        "CategoryName":"Segunda Categoria"
+                      }
+                  ]
+                },
+                {
+                  "MainId":122,
+                  "firstName":"James",
+                  "lastName":"Watson",
+                  "categories":[
+                      {
+                        "CategoryID":2,
+                        "CategoryName":"Example2"
+                      }
+                  ]
+                }
+            ],
+            "messages":[
+
+            ],
+            "success":true
+          }
+
+          </textarea>
+        </div>
+      </div>
+      <p class="message"></p>
+      <button id="convertButton">Converter</button>
+    </main>
+    <footer></footer>
+    <script>
+
+      $(document).ready(function(){
+        $("#json").val("");
+        $("#java").val("");
+      });
+
+      const commaReGlobalPattern = /,/g;
+
+      // Retornar contagem numero de ocorrencias do regex.
+      const countNumberOccurences = function(string, pattern){
+        return ( (string || "").match(pattern) || []).length
+      }
+
+      // Retornar array com as ocorrencias do regex.
+      const jsonOcurrences = function(string, pattern){
+        return JSON.stringify(string.match(pattern));
+      }
+
+      const validarJson = function(){
+        var jsonContent = $("#json").val();
+        try{
+          var jsonObject = JSON.parse(jsonContent);
+          $(".message").text("Json válido!")
+          $(".message").css("color", "green");
+          return jsonObject;
+        }catch(e){ // SyntaxError exception.
+          $(".message").text("Json inválido!");
+          $(".message").css("color", "red");
+          return null;
+        }
+      }
+
+      // Verificar json a cada mudança.
+      $("#json").on("input paste", function(){
+        validarJson();
+      });
+
+
+
+      const limparJson = function(jsonObject) {
+        // console.log(typeof jsonObject);
+        for(const key in jsonObject){
+          // console.log(`${key} : ${jsonObject[key]}`);
+          if(Array.isArray(jsonObject[key]) == true){
+            limparJson(jsonObject[key][0]);
+            return jsonObject[key][0];
+          }
+        }
+        return jsonObject;
+      }
+
+
+
+      // const mapear = function(jsonObject, name){
+      //   var arrayResultados = []
+      //   var arrayParcial = []
+      //   var stringResultado = ` public class ${name} { `
+      //   if( isNaN(name) || Number(name) == 0 ){
+      //     var map = new Map(Object.entries(jsonObject));
+      //     for(const [key, value] of map){
+      //       if(value instanceof Object){
+      //         console.log(`Objeto encontrado -> ${key} : ${value}`)
+      //         stringResultado = stringResultado.concat(` private Object ${key}; `)
+      //         arrayParcial = mapear(value, key);
+      //       }else{
+      //         console.log(`Parâmetro normal encontrado -> ${key}: ${value}`);
+      //         stringResultado = stringResultado.concat(` private ${typeof value} ${key}; `)
+      //       }
+      //     }
+      //   }
+      //   stringResultado = stringResultado.concat("}")
+      //   arrayResultados.push(stringResultado);
+      //   console.log(`RETORNANDO: ${$.merge(arrayResultados, arrayParcial)}`)
+      //   return $.merge(arrayResultados, arrayParcial);
+      // }
+
+      // const testeDebug = function(jsonObject){
+      //   if(Array.isArray(jsonObject)){
+      //     jsonObject = limparJson(jsonObject[0])
+      //   }
+      //   return jsonObject;
+      //  }
+
+      // Converter para java
+      $("#convertButton").on("click", function(){
+        var jsonContent = $("#json").val();
+        var jsonObject = validarJson();
+        if(jsonObject != null){
+          // mapear(jsonObject);
+          // console.log(mapear(jsonObject));
+          // console.log(testeDebug([{"nome":"abacaxi"}, {"nome": "morango"}]));
+          // console.log(limparJson(jsonObject).data);
+          console.log(limparJson(jsonObject));
+        }
+        // console.log("Ocurrences: "+jsonOcurrences(jsonContent, commaReGlobalPattern));
+        // console.log("Number of Ocurrences: "+countNumberOccurences(jsonContent, commaReGlobalPattern));
+      });
+
+    </script>
+  </body>
+</html>
+
+<style>
+  .container{
+    display:flex;
+  }
+  .area{
+    width:275px;
+    height:500px;
+  }
+</style>

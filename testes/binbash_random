@@ -1,0 +1,11 @@
+#!/bin/bash
+
+random=$((RANDOM%5))
+
+case $random in
+    0) echo "O que vamos aprontar hoje, ${USER}?";;
+    1) echo "Que dia excelente né ${USER}?";;
+    2) echo "Sempre bom ver você ${USER}!";;
+    3) echo "Você por aqui novamente ${USER}? ";;
+    4) echo "Bom ver você aqui ${USER}!";;
+esac
